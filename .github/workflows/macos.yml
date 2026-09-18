@@ -1,0 +1,26 @@
+name: Build PulseSweep macOS
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build universal bundle and run native tests
+        run: bash build-macos.command
+      - name: Upload installable bundle archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseSweep-macOS-universal-${{ matrix.runner }}
+          path: build/mac-universal.*/PulseSweep-1.1-macOS-universal.zip
+          if-no-files-found: error
+          retention-days: 30
